@@ -6,24 +6,41 @@
 		this.sendMessage = sendMessage;
 		this.getChatHistory = getChatHistory;
 		this.socket =  io.connect();
-		this.connect = connect;
+		this.addUser = addUser;
+		this.bindEvent = bindEvent;
 	}
 
-	function connect()  {
-		this.socket.on('event-get-users', this.getFriends);
-		this.socket.on('event-get-msg', this.getMessage);
+	bindEvent = function(eventName, eventHandler){
+
+		switch(eventName){
+
+			case 'event-get-users' : 
+				this.socket.on('event-get-users', eventHandler);
+				break;
+			case 'event-get-msg' : 
+				this.socket.on('event-get-msg', eventHandler);
+				break;	
+			case 'event-update-chat-history': 
+				this.socket.on('event-update-chat-history', eventHandler);
+				break;	
+			default:
+				break	
+
+		}
+
+	}
+
+	function addUser()  {
 		
 		this.socket.emit('event-add-user',{
 				name : this.name,
 				mobile : this.mobile
 		});
-	}  
+	}
 
-	function getChatHistory(friend, callback){
-		this.socket.on('event-update-chat-history', function(data){
-			debugger;
-			callback(data);
-		});
+
+	function getChatHistory(friend){
+		
 		this.socket.emit('event-get-chat-history',{
 			to : friend.mobile,
 			from : this.mobile	

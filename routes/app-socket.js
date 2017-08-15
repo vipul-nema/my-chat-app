@@ -1,9 +1,11 @@
-	var usersDB = {
-		888 :{name:"888", online: false,mobile: 888, socket:null},
-		999 :{name:"999", online: false,mobile: 999, socket:null},
-		777 :{name:"777", online: false,mobile: 777, socket:null},
-		555 :{name:"555", online: false,mobile: 555, socket:null}
-	};
+	// var usersDB = {
+	// 	888 :{name:"888", online: false,mobile: 888, socket:null},
+	// 	999 :{name:"999", online: false,mobile: 999, socket:null},
+	// 	777 :{name:"777", online: false,mobile: 777, socket:null},
+	// 	555 :{name:"555", online: false,mobile: 555, socket:null}
+	// };
+	
+	var userDB  = require('./routes/DB/userDB');
 
 	var friendDb = {
 		999 : [888,555,777],
@@ -12,13 +14,16 @@
 		777 : [999]
 	};
 
+	var chatDB = {
+		887112 :[{from: 999 , to:888, message :"Hi how are you" },{from: 999 , to:888, message :"Hi 888" }],
+		492840 :[{from: 555 , to:888, message :"Hi how are you" },{from: 888 , to:555, message :"Hi 888" }]
+	};
+
 	function getChatID (mob1, mob2){
 		return (Number(mob1) *  Number(mob2));
 
 	}
-	var chatDB = {
-		887112 :[{from: 999 , to:888, message :"Hi how are you" },{from: 999 , to:888, message :"Hi 888" }]
-	};
+
 	var ioRef;
 
 	var addConnection =  function(socket){
@@ -83,34 +88,25 @@
 		}
 		
 		function sendMessage(obj){
-				console.log("sendMessage",obj);
-				var chatId =  getChatID(Obj.to, obj.from);
+				console.log("event send Message")
+				var chatId =  getChatID(obj.to, obj.from);
 				if(chatDB[chatId]){
-					chatDB[chatId].push({
-						from : obj.from,
-						to :obj.to,
-						message : obj.message
-					});
+					chatDB[chatId].push(obj);
 				}else{
 					chatDB[chatId] = [];
-					chatDB[chatId].push({
-						from : obj.from,
-						to :obj.to,
-						message : obj.message
-					});
+					chatDB[chatId].push(obj);
 				}
-
-				if(usersDB[obj.to].online && usersDB[obj.to].online ){
+				if(usersDB[obj.to].online && usersDB[obj.to].socket ){
 					usersDB[obj.to].socket.emit("event-get-msg", obj);
 				}
-				
+				usersDB[obj.from].socket.emit("event-get-msg", obj);
+
 		}
 
 		function getChatHistory(obj){
 			
 			var chatId = getChatID(obj.to, obj.from);
-			var chatData =  chatDB[chatId];
-			console.log("chatdata:",chatData, chatId);
+			var chatData =  chatDB[chatId]||[];
 			socket.emit('event-update-chat-history',chatData )
 
 		}

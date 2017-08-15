@@ -1,30 +1,37 @@
 var FriendChatBox = React.createClass({
 	getInitialState : function () {
 		return {
-			friendChat : [],
-			message : ""
+			message : "",
+			friendChat : this.props.friendChat
 		}
 	},
 
-	componentWillReceiveProps(nextProps) {
-		
+	componentWillMount : function() {
+		this.props.user.bindEvent('event-get-msg', this.recieveMessage);
+	},
+
+	componentWillReceiveProps : function(nextProps) {
 		this.setState({friendChat : nextProps.friendChat});	
 	},
 
 	createMessage : function(event){
 		this.setState({
-			message :event.target.value
-		})
+			message : event.target.value
+		});
 	},
 
-	sendMessage : function(){
-		this.props.sendMessage(this.state.friend, this.state.message);
+	sendMessage : function(friend, message){
+		this.props.user.sendMessage(this.props.friend, this.state.message);
 	},
 
-
-	componentDidMount : function(){
-
+	recieveMessage : function(messageObj){
+		this.state.friendChat.push(messageObj);
+		this.setState({
+			friendChat : this.state.friendChat
+		});
 	},
+
+	
 
 	render: function() {
 		var _this = this;
@@ -40,17 +47,18 @@ var FriendChatBox = React.createClass({
 							</li>
 						)
 					})}
+					{this.state.friendChat && this.state.friendChat.length <=0 &&<li>No chat history </li>}
 				
 				</ul>
 				<div>
-					<input type ="text" placeholder ="Enter message" onChange={this.createMessage}/>
+					<input type ="text" placeholder ="Enter message" value= {this.state.message} onChange={this.createMessage}/>
 					<button onClick={this.sendMessage}>send</button>
 				</div>
 				
 			</div>
 		);
 	}
-});
+});	
 
 
 var FriendList = React.createClass({
@@ -58,26 +66,44 @@ var FriendList = React.createClass({
 	getInitialState : function(){
 		return { 
 			friend : undefined,
+			friendList : {},
 			friendChat : []
 		}
 	},
 
+	componentWillMount : function() {
+		this.props.user.bindEvent('event-get-users' , this.getFriends);
+		this.props.user.bindEvent('event-update-chat-history', this.updateChatHistory)
+		
+	},
+	componentDidMount : function() {
+		this.props.user.addUser();
+	},
+
+	updateChatHistory : function(friendChat){
+		this.setState({
+			friendChat : friendChat||[]
+		})
+	},	
+
+	getFriends : function (friendList){
+		this.setState({friendList:friendList});
+	},
+
 	getChatHistory : function(friend){
+		
 		var _this = this;
 		this.setState({
-			friend : friend
+			friend : friend,
+			friendChat :[]
 		}, function(){
-			_this.props.getChatHistory(friend, function(chatData){
-				_this.setState({
-					friendChat : chatData
-				})
-			});
+			_this.props.user.getChatHistory(friend);
 		});
 	},
 
 	render: function() {
 		var _this = this;
-		var friendList = this.props.friendList;
+		var friendList = _this.state.friendList;
 		return (
 			<div className="row-fluid friend-list-container">   
 				<div className="span4">
@@ -103,9 +129,10 @@ var FriendList = React.createClass({
 					</ul>
 				</div>	
 				<div className="span8">
-					<FriendChatBox friend ={this.state.friend} friendChat = {this.state.friendChat}
-					 myMobile={this.props.mobile} myName={this.props.name} sendMessage={this.props.sendMessage}/>
+					<FriendChatBox user={this.props.user} friend ={this.state.friend} friendChat = {this.state.friendChat}
+					 myMobile={this.props.mobile} myName={this.props.name} />
 				</div>
+				
 			</div>
 		)
 	}
@@ -117,8 +144,7 @@ var JoinChatComp = React.createClass({
 	//props - mobile , name
 	getInitialState : function(){
 	 	return {
-			friendList : {},
-			friendChat : []
+			
 		 }	
 	},
 	
@@ -126,28 +152,14 @@ var JoinChatComp = React.createClass({
 		this.user.getChatHistory(friend, cb,this.props.mobile);
 	},
 
-	sendMessage : function(friend, message){
-		debugger;
-		this.user.sendMessage(friend, message);
-	},
-
-	recieveMessage : function(chatObj){
-		thi.setState({
-			friendChat : this.friendChat.push(chatObj)
-		});
-	},
-	componentDidMount : function(){
-		debugger;
+	
+	componentWillMount : function(){
+		
 		this.user = new User(this.props.name, this.props.mobile);
-		this.user.getFriends = this.getFriends;
-		this.user.recieveMessage = this.recieveMessage;
-		this.user.connect();
+		// this.user.recieveMessage = this.recieveMessage;
 	},
 
-	getFriends : function (userData){
-		this.setState({friendList:userData});
-	},
-
+	
 	render: function() {
 		var props = this.props;
 		return (
@@ -158,8 +170,7 @@ var JoinChatComp = React.createClass({
 						<label>Mobile : {props.mobile} </label>
 					</div>
 				
-					<FriendList friendList = {this.state.friendList} mobile={props.mobile} name={props.name}
-							getChatHistory = {this.getChatHistory} sendMessage = {this.sendMessage}/>
+					<FriendList user = {this.user} mobile={props.mobile} name={props.name}/>
 				</div>
 				
 		
