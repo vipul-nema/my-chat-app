@@ -3,7 +3,7 @@ Steps
 2. npm install
 3. grunt
 4.run node app.js 
-go to - localhost:9000
+go to - localhost:3000
 
 This application has some test mobile numbers 
 999, 888, 777,555 - you can use them  for test chating
