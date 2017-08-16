@@ -23,8 +23,13 @@
 			});
 		},
 
-		sendMessage: function (friend, message) {
+		sendMessage: function (event) {
+			event.stopPropagation();
+			event.preventDefault();
 			this.props.user.sendMessage(this.props.friend, this.state.message);
+
+			var chatDiv = document.querySelectorAll(".chat-box-container ul")[0];
+			chatDiv.scrollTop = chatDiv.scrollHeight + 200;
 			this.setState({ message: "" });
 		},
 
@@ -39,7 +44,7 @@
 			var _this = this;
 			return React.createElement(
 				"div",
-				{ className: "col-sm-12 col-lg-12 chat-box-container " },
+				{ className: "col-sm-12 col-lg-12 border-top-0 chat-box-container  " },
 				React.createElement(
 					"ul",
 					null,
@@ -76,14 +81,9 @@
 					)
 				),
 				React.createElement(
-					"div",
-					{ className: "chat-box" },
-					React.createElement("input", { className: "form-control", type: "text", placeholder: "Enter message", value: this.state.message, onChange: this.createMessage }),
-					React.createElement(
-						"button",
-						{ className: "btn btn-primary", onClick: this.sendMessage },
-						"send"
-					)
+					"form",
+					{ className: "chat-box", onSubmit: this.sendMessage },
+					React.createElement("input", { className: "form-control", type: "text", placeholder: "Enter message", value: this.state.message, onChange: this.createMessage })
 				)
 			);
 		}
@@ -168,20 +168,16 @@
 							),
 							" "
 						),
-						React.createElement("hr", null)
+						React.createElement("hr", null),
+						"Friend List",
+						React.createElement("input", { className: "form-control", type: "text", placeholder: "search for friend" })
 					),
 					React.createElement(
 						"div",
 						{ className: " row col-sm-12 col-lg-12" },
 						React.createElement(
-							"div",
-							{ className: "text-center col-sm-12  col-lg-12" },
-							"Friend List",
-							React.createElement("input", { className: "form-control", type: "text", placeholder: "search for friend" })
-						),
-						React.createElement(
 							"ul",
-							{ className: "row col-sm-12 col-lg-12 border border-primary" },
+							{ className: " friend-list row col-sm-12 col-lg-12 border border-primary" },
 							Object.keys(friendList).map(function (friend, index) {
 								var btnClass = friendList[friend].online ? " online " : " ";
 								btnClass += "btn rounded-circle ";
@@ -219,7 +215,7 @@
 						)
 					)
 				),
-				React.createElement(
+				this.state.friend && React.createElement(
 					"div",
 					{ className: "row col-sm-12 col-lg-7" },
 					React.createElement(FriendChatBox, { user: this.props.user, friend: this.state.friend, friendChat: this.state.friendChat,

@@ -21,8 +21,13 @@
 			});
 		},
 
-		sendMessage : function(friend, message){
+		sendMessage : function(event){
+			event.stopPropagation();
+			event.preventDefault();
 			this.props.user.sendMessage(this.props.friend, this.state.message);
+			
+			var chatDiv = document.querySelectorAll(".chat-box-container ul")[0];
+			chatDiv.scrollTop = chatDiv.scrollHeight+200;
 			this.setState({message : ""});
 		},
 
@@ -38,7 +43,7 @@
 		render: function() {
 			var _this = this;
 			return (
-				<div className="col-sm-12 col-lg-12 chat-box-container ">
+				<div className="col-sm-12 col-lg-12 border-top-0 chat-box-container  ">
 					<ul>
 						{ this.state.friendChat.map(function(chat,index){
 							
@@ -54,10 +59,9 @@
 						{this.state.friendChat && this.state.friendChat.length <=0 &&<li>No chat history yet </li>}
 					
 					</ul>
-					<div className="chat-box">
+					<form className="chat-box" onSubmit={this.sendMessage} >
 						<input className="form-control" type ="text" placeholder ="Enter message" value= {this.state.message} onChange={this.createMessage}/>
-						<button className = "btn btn-primary" onClick={this.sendMessage}>send</button>
-					</div>
+					</form>
 					
 				</div>
 			);
@@ -121,15 +125,14 @@
 							<label><strong>Your Name : {this.props.name}</strong> </label><br/>
 							<label><strong>Your Mobile : {this.props.mobile}</strong> </label>
 							<hr/>
+							Friend List
+							<input className="form-control" type="text" placeholder="search for friend"/>
 						</div>
 
 						<div className=" row col-sm-12 col-lg-12">
-							<div className="text-center col-sm-12  col-lg-12">
-								Friend List
-								<input className="form-control" type="text" placeholder="search for friend"/>
-							</div>
+							
 
-							<ul className="row col-sm-12 col-lg-12 border border-primary">
+							<ul className=" friend-list row col-sm-12 col-lg-12 border border-primary">
 							{
 								Object.keys(friendList).map(function(friend, index){
 									var btnClass = friendList[friend].online? " online ": " ";
@@ -153,13 +156,12 @@
 						</div>
 					</div>	
 
-					<div className="row col-sm-12 col-lg-7">
+					{this.state.friend && <div className="row col-sm-12 col-lg-7">
 						
 						<FriendChatBox user={this.props.user} friend ={this.state.friend} friendChat = {this.state.friendChat}
 							myMobile={this.props.mobile} myName={this.props.name} />
 						
-					</div>
-					
+					</div>}
 					
 				</div>
 			)
