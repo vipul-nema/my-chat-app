@@ -6,13 +6,13 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
 var index = require('./routes/index');
-var users = require('./routes/users');
+
 var err = require('./routes/error');
 
 var app = express();
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
-var socket = require('./routes/app-socket');
+var socket = require('./routes/appSocket');
 socket(io);
 
 // io.sockets.on('connection', socket);
@@ -32,15 +32,12 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', index);
-app.use('/users', users);
+
 app.use(err.not_found);
 app.use(err.error);
 
 
-
-
-
-server.listen(9000, function (argument) {
-	console.log("server is listening at port " + 9000);
+server.listen(3000, function (argument) {
+	console.log("server is listening at port " + 3000);
 });
 module.exports = app;
