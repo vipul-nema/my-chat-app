@@ -4,12 +4,13 @@
 		this.name = name;
 		this.mobile = mobile;
 		this.sendMessage = sendMessage;
-		this.socket =  io.connect(domainUrl);
+		this.getChatHistory = getChatHistory;
+		this.socket =  io.connect();
 		this.connect = connect;
 	}
 
 	function connect()  {
-		this.socket.on('event-get-users', this.getUser);
+		this.socket.on('event-get-users', this.getFriends);
 		this.socket.on('event-get-msg', this.getMessage);
 		
 		this.socket.emit('event-add-user',{
@@ -18,11 +19,22 @@
 		});
 	}  
 
+	function getChatHistory(friend, callback){
+		this.socket.on('event-update-chat-history', function(data){
+			debugger;
+			callback(data);
+		});
+		this.socket.emit('event-get-chat-history',{
+			to : friend.mobile,
+			from : this.mobile	
+		})
+	}
 	
-	function sendMessage(to, message){
+	function sendMessage(friend, message){
 		this.socket.emit('event-send-msg', {
-			to : to,
+			to : friend.mobile,
 			message : message,
+			from : this.mobile
 		});
 	} 
 

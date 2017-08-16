@@ -12,13 +12,14 @@
 		777 : [999]
 	};
 
-	function getChatID (){
+	function getChatID (mob1, mob2){
+		return (Number(mob1) *  Number(mob2));
 
 	}
-	// var chatDB = {
-	// chat_id ;	{from:  , to: message : }
-	// };
-	// var ioRef;
+	var chatDB = {
+		887112 :[{from: 999 , to:888, message :"Hi how are you" },{from: 999 , to:888, message :"Hi 888" }]
+	};
+	var ioRef;
 
 	var addConnection =  function(socket){
 		console.log("user connected");
@@ -27,6 +28,7 @@
 		socket.on("event-send-msg", sendMessage);
 
 		socket.on("disconnect", disconnectUser);
+		socket.on('event-get-chat-history', getChatHistory);
 
 		function disconnectUser(){
 			// usersDB[userInstance.mobile].online = false;
@@ -46,6 +48,7 @@
 			}	
 		}
 		
+
 
 		function addUser (user) {
 				this.mobile = user.mobile;
@@ -81,11 +84,37 @@
 		
 		function sendMessage(obj){
 				console.log("sendMessage",obj);
-				if(usersDB[obj.to].socket){
-					usersDB[obj.to].socket.emit("event-get-msg", {from :this.mobile, message :obj.message})
+				var chatId =  getChatID(Obj.to, obj.from);
+				if(chatDB[chatId]){
+					chatDB[chatId].push({
+						from : obj.from,
+						to :obj.to,
+						message : obj.message
+					});
+				}else{
+					chatDB[chatId] = [];
+					chatDB[chatId].push({
+						from : obj.from,
+						to :obj.to,
+						message : obj.message
+					});
+				}
+
+				if(usersDB[obj.to].online && usersDB[obj.to].online ){
+					usersDB[obj.to].socket.emit("event-get-msg", obj);
 				}
 				
-		}	
+		}
+
+		function getChatHistory(obj){
+			
+			var chatId = getChatID(obj.to, obj.from);
+			var chatData =  chatDB[chatId];
+			console.log("chatdata:",chatData, chatId);
+			socket.emit('event-update-chat-history',chatData )
+
+		}
+
 		function updateChatDB (chatData){
 			var chatId = chatData.to + chatData.from;
 			chatDB[chatId].push(chatData);

@@ -39,11 +39,15 @@ a {
 
 .chat-box-container {
 	border: 2px solid blue;
-	position: relative;
 	background-color: yellowgreen;
 	min-height: 400px;
 	height: 400px;
+
 	
+}
+.chat-box-container ul {
+	border-bottom: 1px solid;
+	height: 80%;
 }
 .chat-box{
 	height: 90%;
