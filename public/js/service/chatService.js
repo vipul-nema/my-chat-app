@@ -8,6 +8,7 @@
 				this.socket =  io.connect();
 				this.addUser = addUser;
 				this.bindEvent = bindEvent;
+				this.searchFriend = searchFriend;
 			}
 
 			function bindEvent(eventName, eventHandler){
@@ -37,7 +38,9 @@
 						mobile : this.mobile
 				});
 			}
-
+			function searchFriend (mobile, callback){
+				this.socket.emit('event-search-friend',{mobile:mobile}, callback);
+			}
 
 			function getChatHistory(friend){
 				

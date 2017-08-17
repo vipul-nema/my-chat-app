@@ -15,12 +15,17 @@
 		socket.on("event-send-msg", sendMessage);
 		socket.on("disconnect", disconnectUser);
 		socket.on('event-get-chat-history', getChatHistory);
+		socket.on('event-search-friend', searchFriend);
+		
 
 	}
 
 	function addUser (user) {
 		//this == socket
+		this.getFriendDetails = getFriendDetails
 		this.mobile = user.mobile;
+		this.name = user.mobile;
+		this.online = true;
 		this.userResponse = {};
 		// this.name = user.mobile;
 
@@ -114,6 +119,48 @@
 				}
 			},this)
 		}	
+	}
+
+	function searchFriend(friend, callback){
+		console.log("add friend");
+		var mobile = friend.mobile || "";
+		if(mobile &&  usersDB[mobile] ){
+			var friendDetails = usersDB[mobile];
+			if(friendDB[this.mobile].indexOf(mobile)==-1){
+				friendDB[this.mobile].push(mobile);
+				friendDB[mobile].push(mobile);
+				console.log(friendDB[this.mobile]);
+				this.getFriendDetails();
+				// update new friend
+				if(friendDetails.online){
+					friendDetails.socket.userResponse[this.mobile] = {
+						name : this.name,
+						mobile : this.mobile,
+						online : this.online
+					}
+					usersDB[mobile].socket.emit("event-get-users",friendDetails.socket.userResponse);
+				}
+				// send  status to user about friends
+				console.log("event-get-users" );
+				this.emit("event-get-users",this.userResponse);	
+			}
+		
+			}else{
+					callback("No friend found of this mobile number");
+			}
+	}
+
+	function getFriendDetails(){
+		friendDB[this.mobile].forEach(function(friend) {
+			//get friend's current details from userDB
+			var friendDetails = usersDB[friend];
+			this.userResponse[friend] = {
+				name : friendDetails.name,
+				mobile : friendDetails.mobile,
+				online : friendDetails.online
+			}
+		}, this);
+		return this.userResponse;
 	}
 		
 

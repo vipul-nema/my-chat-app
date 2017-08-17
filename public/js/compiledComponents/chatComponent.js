@@ -132,6 +132,16 @@
 			});
 		},
 
+		addNewFriend: function (event) {
+			var newFriend = document.getElementsByClassName('add-new-friend')[0];
+			debugger;
+			if (newFriend.value) {
+				this.props.user.searchFriend(newFriend.value, function (message) {
+					alert(message);
+				});
+			}
+		},
+
 		render: function () {
 			var _this = this;
 			var friendList = _this.state.friendList;
@@ -170,7 +180,12 @@
 						),
 						React.createElement("hr", null),
 						"Friend List",
-						React.createElement("input", { className: "form-control", type: "text", placeholder: "search for friend" })
+						React.createElement("input", { className: "form-control add-new-friend", type: "text", placeholder: "search for friend with mobile number" }),
+						React.createElement(
+							"button",
+							{ onClick: this.addNewFriend },
+							"Add New Friend"
+						)
 					),
 					React.createElement(
 						"div",

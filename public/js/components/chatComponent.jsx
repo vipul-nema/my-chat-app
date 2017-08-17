@@ -112,6 +112,18 @@
 			});
 		},
 
+		addNewFriend : function(event){
+			var newFriend = document.getElementsByClassName('add-new-friend')[0];
+			debugger;
+			if(newFriend.value){
+				this.props.user.searchFriend(newFriend.value , function(message){
+					alert(message);
+				});
+			}
+		},
+
+		
+
 		render: function() {
 			var _this = this;
 			var friendList = _this.state.friendList;
@@ -126,7 +138,9 @@
 							<label><strong>Your Mobile : {this.props.mobile}</strong> </label>
 							<hr/>
 							Friend List
-							<input className="form-control" type="text" placeholder="search for friend"/>
+							<input className="form-control add-new-friend" type="text"  placeholder="search for friend with mobile number"/>
+							<button onClick ={this.addNewFriend}>Add New Friend</button>
+							
 						</div>
 
 						<div className=" row col-sm-12 col-lg-12">
