@@ -183,7 +183,7 @@
 						React.createElement("input", { className: "form-control add-new-friend", type: "text", placeholder: "search for friend with mobile number" }),
 						React.createElement(
 							"button",
-							{ onClick: this.addNewFriend },
+							{ className: "btn btn-primary", onClick: this.addNewFriend },
 							"Add New Friend"
 						)
 					),

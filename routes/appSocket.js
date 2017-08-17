@@ -107,17 +107,17 @@
 		console.log("event user disconnected" );
 		// this.userResponse = null;
 		if(usersDB[this.mobile]){
-			usersDB[this.mobile].online = false;
-			usersDB[this.mobile].socket = null;
-
-
+			
 			friendDB[this.mobile].forEach(function(friend){
 				if(usersDB[friend].online){
 					//TODO - send indevidual user response instead all
+					console.log(usersDB[friend].socket.userResponse);
 					usersDB[friend].socket.userResponse[this.mobile].online = false;
 					usersDB[friend].socket.emit("event-get-users", usersDB[friend].socket.userResponse);
 				}
-			},this)
+			},this);
+			usersDB[this.mobile].online = false;
+			usersDB[this.mobile].socket = null;
 		}	
 	}
 
@@ -128,8 +128,8 @@
 			var friendDetails = usersDB[mobile];
 			if(friendDB[this.mobile].indexOf(mobile)==-1){
 				friendDB[this.mobile].push(mobile);
-				friendDB[mobile].push(mobile);
-				console.log(friendDB[this.mobile]);
+				friendDB[mobile].push(this.mobile);
+				
 				this.getFriendDetails();
 				// update new friend
 				if(friendDetails.online){
@@ -144,10 +144,9 @@
 				console.log("event-get-users" );
 				this.emit("event-get-users",this.userResponse);	
 			}
-		
-			}else{
-					callback("No friend found of this mobile number");
-			}
+		}else{
+			callback("No friend found of this mobile number");
+		}
 	}
 
 	function getFriendDetails(){
